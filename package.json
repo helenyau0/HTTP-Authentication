@@ -1,0 +1,25 @@
+{
+  "name": "http-authentication",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/helenyau0/HTTP-Authentication.git"
+  },
+  "author": "Helen Yau",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/helenyau0/HTTP-Authentication/issues"
+  },
+  "homepage": "https://github.com/helenyau0/HTTP-Authentication#readme",
+  "dependencies": {
+    "body-parser": "^1.17.2",
+    "cookie-session": "^2.0.0-beta.2",
+    "express": "^4.15.3",
+    "pg-promise": "^6.3.6"
+  }
+}
