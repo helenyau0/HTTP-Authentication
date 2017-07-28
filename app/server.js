@@ -1,7 +1,7 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 const cookieParser = require('cookie-parser')
-const session = require('express-session')
+const cookieSession = require('cookie-session')
 const flash = require('connect-flash')
 const db = require('../database/db.js')
 const app = express()
@@ -12,15 +12,16 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
 app.use(cookieParser('secret'));
-app.use(session({
-    secret: 'stupid cat', // session secret
-    resave: true,
-    saveUninitialized: true
+app.use(cookieSession({
+  secret : "iwantacatpls",
+  key    : ['key1', 'key2'],
+  maxAge: 24 * 60 * 60 * 1000
 }))
+
 app.use(flash({ unsafe: true }))
 
 app.get('/flash', function(req, res){
-  req.flash('error', "please provide an email and a password to login")
+  req.flash('error', 'please provide an email and a password to login')
   res.redirect('/signup')
 });
 
@@ -44,18 +45,23 @@ app.get('/signup', (req, res) => {
 app.post('/signup', (req, res) => {
   const { email, password, confirm_pass } = req.body
 
-  if(req.body.email.length <= 0 && req.body.password.length <= 0) {
-    res.redirect('/flash');
-  } else if(req.body.password !== req.body.confirm_pass) {
+  if(email.length <= 0 && password.length <= 0 && confirm_pass.length <= 0 || email.length >=3 && password.length <=3 && confirm_pass.length <= 3) {
+    res.redirect('/flash')
+  } else if(password !== confirm_pass) {
     res.redirect('/flash2')
   }
-  else if(req.body.email.length >=3  && req.body.password === req.body.confirm_pass) {
+  else if(email.length >=3 && password.length >= 3 && confirm_pass.length >= 3 && password === confirm_pass ) {
+
     db.addUsers(email, password)
-    .then(() => res.redirect('login'))
+    .then(() => {
+      req.session.user = {
+        email: email
+      }
+      res.redirect('/homepage')
+    })
     .catch(err => console.log(err))
   }
 })
-
 
 
 const port = process.env.PORT || 3000
