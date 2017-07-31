@@ -8,8 +8,8 @@ const cn = {
 
 const db = pgp(cn)
 
-const getAllUsers = () => {
-  return db.any('SELECT * FROM users')
+const getAllUsers = (id) => {
+  return db.any('SELECT * FROM users WHERE id = $1', [id])
 }
 
 const addUsers = (email, password) => {
