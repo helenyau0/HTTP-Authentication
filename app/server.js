@@ -7,6 +7,8 @@ const flash = require('connect-flash')
 const db = require('../database/db.js')
 const app = express()
 
+require('dotenv').load();
+
 app.set('view engine', 'ejs')
 
 app.use(bodyParser.urlencoded({ extended: true }))
@@ -14,7 +16,7 @@ app.use(bodyParser.json())
 
 app.use(cookieParser('secret'))
 app.use(cookieSession({
-  secret : "iwantacatpls",
+  secret : process.env.SECRET_KEY,
   key    : ['key1', 'key2'],
   maxAge : 60 * 60 * 1000
 }))
@@ -40,10 +42,19 @@ app.get('/flash3', function(req, res){
   res.redirect('/login')
 })
 
-app.get('/homepage', function(req, res) {
+const loginRequired = (req, res, next) => {
+  if(!req.session.user) {
+    res.redirect('/login')
+  } else {
+    next()
+  }
+}
+
+app.get('/homepage', loginRequired, (req, res, next) => {
   const user = req.session.user.email
   res.send('welcome ' + user);
 })
+
 
 app.get('/login', (req, res) => {
   if(req.session.user) {
