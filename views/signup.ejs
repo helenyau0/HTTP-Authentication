@@ -18,13 +18,13 @@
 
     <form action="/signup" method="post">
       <div class="email">
-        <input type="text" name="email" placeholder="email">
+        <input type="email" name="email" placeholder="email" autocomplete="off" required>
       </div>
       <div class="pass">
-        <input type="text" name="password" placeholder="password">
+        <input type="password" name="password" placeholder="password" required>
       </div>
       <div class="confirm_pass">
-        <input type="text" name="confirm_pass" placeholder="confirm password">
+        <input type="password" name="confirm_pass" placeholder="confirm password" required>
       </div>
       <div class="submit_button">
         <button type="submit" name="button">Signup</button>

@@ -8,15 +8,15 @@ const cn = {
 
 const db = pgp(cn)
 
-const getAllUsers = (id) => {
-  return db.any('SELECT * FROM users WHERE id = $1', [id])
+const getUser = (email) => {
+  return db.one('SELECT * FROM users WHERE email = $1', [email])
 }
 
 const addUsers = (email, password) => {
-  return db.none('INSERT INTO users (email, password) VALUES($1, $2)', [email, password])
+  return db.oneOrNone('INSERT INTO users (email, password) VALUES($1, $2) RETURNING *', [email, password])
 }
 
 module.exports = {
-  getAllUsers,
+  getUser,
   addUsers
 }
