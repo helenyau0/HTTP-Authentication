@@ -36,7 +36,7 @@ app.get('/', loginRequired, (req, res, next) => {
 
 app.get('/login', (req, res) => {
   if(req.session.user) {
-    return res.redirect('/')
+    res.redirect('/')
   } else {
     res.render('login')
   }
@@ -64,15 +64,14 @@ app.post('/login', (req, res) => {
   })
 })
 
-app.post('/signup', (req, res, next) => {
+app.post('/signup', (req, res) => {
   const { email, password, confirm_pass } = req.body
 
   if(email.length < 3 || password.length < 3) {
     res.render('/signup', { message: 'please provide an email and a password to login' })
   } else if(password !== confirm_pass) {
     res.render('signup', { message: 'passwords do not match' })
-  }
-  if(email.length >= 3 && password === confirm_pass) {
+  } else if(email.length >= 3 && password === confirm_pass) {
     saveNewUser(email, password)
     .then(user => {
       req.session.user = user
