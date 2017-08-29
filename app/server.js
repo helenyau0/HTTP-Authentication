@@ -1,10 +1,10 @@
 const express = require('express')
 const bodyParser = require('body-parser')
-const cookieParser = require('cookie-parser')
-const cookieSession = require('cookie-session')
-const bcrypt = require("bcrypt")
+const cookieSession = require('cook-session')
+const bcrypt = require('bcrypt')
 const flash = require('connect-flash')
-const db = require('../database/db.js')
+const db = require('../config/database/db.js')
+const { saveNewUser } = require('../config/database/auth.js')
 const app = express()
 
 require('dotenv').load();
@@ -14,30 +14,28 @@ app.set('view engine', 'ejs')
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 
-app.use(cookieParser('secret'))
 app.use(cookieSession({
   secret : process.env.SECRET_KEY,
-  key    : ['key1', 'key2'],
   maxAge : 60 * 60 * 1000
 }))
 
 app.use(flash({ unsafe: true }))
 
-app.get('/', (req, res) => {
+app.get('/index', (req, res) => {
   return res.render('index')
 })
 
-app.get('/flash', function(req, res){
+app.get('/flash', (req, res) => {
   req.flash('error', 'please provide an email and a password to login')
   res.redirect('/signup')
 })
 
-app.get('/flash2', function(req, res){
+app.get('/flash2', (req, res) => {
   req.flash('error', 'passwords do not match')
   res.redirect('/signup')
 })
 
-app.get('/flash3', function(req, res){
+app.get('/flash3', (req, res) => {
   req.flash('error', 'incorrect email or password')
   res.redirect('/login')
 })
@@ -50,23 +48,22 @@ const loginRequired = (req, res, next) => {
   }
 }
 
-app.get('/homepage', loginRequired, (req, res, next) => {
+app.get('/', loginRequired, (req, res, next) => {
   const user = req.session.user.email
-  res.send('welcome ' + user);
+  res.send('Welcome ' + user)
 })
-
 
 app.get('/login', (req, res) => {
   if(req.session.user) {
-    return res.redirect('/homepage')
+    return res.redirect('/')
   } else {
-    res.render('login', {message: req.flash('error')})
+    res.render('login', { message: req.flash('error') })
   }
 })
 
 app.get('/signup', (req, res) => {
   if(req.session.user) {
-    res.redirect('/homepage')
+    res.redirect('/')
   } else {
     res.render('signup', { message: req.flash('error') })
   }
@@ -82,7 +79,7 @@ app.post('/login', (req, res) => {
 
       if(email === result.email && isMatch) {
         req.session.user = result
-        res.redirect('/homepage')
+        res.redirect('/')
       }
     });
   })
@@ -91,26 +88,18 @@ app.post('/login', (req, res) => {
 app.post('/signup', (req, res) => {
   const { email, password, confirm_pass } = req.body
 
-  if(email.length <= 0 && password.length <= 0 && confirm_pass.length <= 0 || email.length < 3 && password.length < 3 && confirm_pass.length < 3) {
-    res.redirect('/flash')
+  if(email.length < 3 || password.length < 3) {
+    res.render('/signup', { message: 'please provide an email and a password to login' })
   } else if(password !== confirm_pass) {
-    res.redirect('/flash2')
+    res.render('signup', { message: 'passwords do not match' })
   }
   if(email.length >= 3 && password === confirm_pass) {
 
-    const saltRounds = 10
-
-    bcrypt.hash(password, saltRounds).then(function(hashedPassword) {
-      return hashedPassword
+    .then(user => {
+      req.session.user = user
+      res.redirect('/')
     })
-    .then(function(hash) {
-      return db.addUsers(email, hash)
-    })
-    .then(result => {
-      req.session.user = result
-      res.redirect('/homepage')
-    })
-    .catch(err => console.log(err))
+    .catch(err => next(err))
   }
 })
 
