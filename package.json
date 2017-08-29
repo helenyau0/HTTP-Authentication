@@ -2,8 +2,11 @@
   "name": "http-authentication",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "./app/server.js",
   "scripts": {
+    "start": "nodemon ./app/server.js",
+    "db": "psql < ./database/database.sql",
+    "dbInsert": "psql http_auth < ./database/schema.sql",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -17,9 +20,15 @@
   },
   "homepage": "https://github.com/helenyau0/HTTP-Authentication#readme",
   "dependencies": {
+    "bcrypt": "^1.0.3",
     "body-parser": "^1.17.2",
+    "connect-flash": "^0.1.1",
     "cookie-session": "^2.0.0-beta.2",
+    "dotenv": "^4.0.0",
+    "ejs": "^2.5.6",
     "express": "^4.15.3",
+    "express-session": "^1.15.4",
+    "nodemon": "^1.11.0",
     "pg-promise": "^6.3.6"
   }
 }

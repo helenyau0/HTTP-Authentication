@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Sign Up</title>
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css">
+    <style>
+        body { padding-left:10px; }
+    </style>
+  </head>
+  <body>
+    <h2>Hello! Please create an account :D</h2>
+
+    <form action="/signup" method="post">
+      <div class="email">
+        <input type="email" name="email" placeholder="email" autocomplete="off" required>
+      </div>
+      <div class="pass">
+        <input type="password" name="password" placeholder="password" required>
+      </div>
+      <div class="confirm_pass">
+        <input type="password" name="confirm_pass" placeholder="confirm password" required>
+      </div>
+      <div class="submit_button">
+        <button type="submit" name="button">Signup</button>
+      </div>
+    </form>
+  </body>
+</html>
