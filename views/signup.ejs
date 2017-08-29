@@ -12,10 +12,6 @@
   <body>
     <h2>Hello! Please create an account :D</h2>
 
-    <% if (message) { %>
-      <p><%= message %></p>
-    <% } %>
-
     <form action="/signup" method="post">
       <div class="email">
         <input type="email" name="email" placeholder="email" autocomplete="off" required>

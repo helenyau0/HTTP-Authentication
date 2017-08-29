@@ -1,10 +1,8 @@
 const express = require('express')
 const bodyParser = require('body-parser')
-const cookieSession = require('cook-session')
-const bcrypt = require('bcrypt')
-const flash = require('connect-flash')
-const db = require('../config/database/db.js')
-const { saveNewUser } = require('../config/database/auth.js')
+const cookieSession = require('cookie-session')
+const db = require('./database/db.js')
+const { saveNewUser, getValidUser } = require('./auth.js')
 const app = express()
 
 require('dotenv').load();
@@ -19,25 +17,8 @@ app.use(cookieSession({
   maxAge : 60 * 60 * 1000
 }))
 
-app.use(flash({ unsafe: true }))
-
 app.get('/index', (req, res) => {
   return res.render('index')
-})
-
-app.get('/flash', (req, res) => {
-  req.flash('error', 'please provide an email and a password to login')
-  res.redirect('/signup')
-})
-
-app.get('/flash2', (req, res) => {
-  req.flash('error', 'passwords do not match')
-  res.redirect('/signup')
-})
-
-app.get('/flash3', (req, res) => {
-  req.flash('error', 'incorrect email or password')
-  res.redirect('/login')
 })
 
 const loginRequired = (req, res, next) => {
@@ -57,7 +38,7 @@ app.get('/login', (req, res) => {
   if(req.session.user) {
     return res.redirect('/')
   } else {
-    res.render('login', { message: req.flash('error') })
+    res.render('login')
   }
 })
 
@@ -65,27 +46,25 @@ app.get('/signup', (req, res) => {
   if(req.session.user) {
     res.redirect('/')
   } else {
-    res.render('signup', { message: req.flash('error') })
+    res.render('signup')
   }
 })
 
 app.post('/login', (req, res) => {
   const { email, password } = req.body
 
-  db.getUser(email)
-  .then(result => {
-    bcrypt.compare(password, result.password, function(err, isMatch) {
-      if(err) return next(err)
-
-      if(email === result.email && isMatch) {
-        req.session.user = result
-        res.redirect('/')
-      }
-    });
+  getValidUser(email, password)
+  .then(user => {
+    if(user) {
+      req.session.user = user
+      res.redirect('/')
+    } else {
+      res.render('/login', { message : 'incorrect email or password' })
+    }
   })
 })
 
-app.post('/signup', (req, res) => {
+app.post('/signup', (req, res, next) => {
   const { email, password, confirm_pass } = req.body
 
   if(email.length < 3 || password.length < 3) {
@@ -94,7 +73,7 @@ app.post('/signup', (req, res) => {
     res.render('signup', { message: 'passwords do not match' })
   }
   if(email.length >= 3 && password === confirm_pass) {
-
+    saveNewUser(email, password)
     .then(user => {
       req.session.user = user
       res.redirect('/')
@@ -105,4 +84,4 @@ app.post('/signup', (req, res) => {
 
 const port = process.env.PORT || 3000
 app.listen(port)
-console.log('listening on port: 3000');
+console.log('listening on port: 3000')
